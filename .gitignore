@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.dist/
+build/
+dist/
+site/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.iml
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs and local env files
+*.log
+.env
+.env.*
+*.local
+
+# Robot Framework outputs
+log.html
+report.html
+output.xml
+xunit.xml
+debug.log
+results/
+
+# Screenshots and temporary artifacts
+*.png
+*.tmp
+*.bak
+
+# Project-specific
+.github/
+
