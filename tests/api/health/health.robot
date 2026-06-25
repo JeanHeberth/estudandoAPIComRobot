@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation     Suite para validar se a API está no ar através de um Health-Check
-Resource          ../../resources/API_HealthCheckResource.robot
+Resource          ../../../resources/API_HealthCheckResource.robot
 Test Setup        Criar Sessao Da API
 
 

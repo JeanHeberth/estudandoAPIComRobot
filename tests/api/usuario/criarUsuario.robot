@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation     Suite para criar um usuário na aplicação utilizando a API de criação de usuários.
-Resource          ../../resources/API_UsuarioResource.robot
+Resource          ../../../resources/API_UsuarioResource.robot
 Test Setup       Criar Sessao Da API
 
 *** Test Cases ***

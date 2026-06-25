@@ -1,21 +1,24 @@
 *** Settings ***
-
+Resource    ../resources/CommonsResources.robot
 Library     RequestsLibrary
+
 
 *** Keywords ***
 #Dado
 Dado que eu tenha acesso a api
-    Create Session    api    ${BASE_URL}
+     Criar Sessao Da API
 
 #Quando
 Quando eu consultar o healhcheck
-    ${response}=    Get Request    api    /actuator/health
+    ${response}=    GET On Session    api    /health
     Set Suite Variable    ${response}
 
 #Entao
 Entao a API deve retornar status 200
-    Should Be Equal As Integers    ${response.status_code}    200
+    Validar Status 200 OK       ${response}
+
 #E
-E o status da aplicação deve ser UP
-    ${json}=    To Json    ${response.content}
+E o status da aplicação deve ser UP e campo aplicacao deve ser igual a criandoAPI
+    ${json}=    Set Variable      ${response.json()}
     Should Be Equal As Strings    ${json['status']}    UP
+    Should Be Equal As Strings    ${json['aplicacao']}  criandoAPI

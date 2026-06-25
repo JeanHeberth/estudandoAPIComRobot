@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Suite para criar um produto na aplicação utilizando a API de criação de produtos.
-Resource        ../../resources/API_ProdutoResource.robot
+Resource        ../../../resources/API_ProdutoResource.robot
 Test Setup      Criar Sessao Da API
 
 
