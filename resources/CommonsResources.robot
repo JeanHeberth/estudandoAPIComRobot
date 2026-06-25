@@ -132,7 +132,11 @@ Gerar Produto Faker
 
 
 Criar Produto Na API
+    [Arguments]     ${body}=${None}
+
+    IF   $body is None
     ${body}=    Gerar Produto Faker
+    END
 
     ${response}=    POST On Session
     ...    api
@@ -240,3 +244,22 @@ Validar Token JWT
     Dictionary Should Contain Key    ${json}    token
     Should Not Be Empty             ${json['token']}
     Should Be Equal As Strings      ${json['tipo']}    Bearer
+
+Validar Mensagem De Campo Obrigatorio
+    [Arguments]    ${response}    ${campo}    ${mensagem}
+
+    ${json}=    Set Variable    ${response.json()}
+
+    Should Be Equal As Strings
+    ...    ${json['mensagem']}
+    ...    Um ou mais campos estão inválidos
+
+    ${erro}=    Set Variable    ${json['campos'][0]}
+
+    Should Be Equal As Strings
+    ...    ${erro['campo']}
+    ...    ${campo}
+
+    Should Be Equal As Strings
+    ...    ${erro['mensagem']}
+    ...    ${mensagem}

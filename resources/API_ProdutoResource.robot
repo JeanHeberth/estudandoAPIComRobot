@@ -6,11 +6,11 @@ Resource    ../resources/CommonsResources.robot
 
 *** Keywords ***
 
-#DADO
-Dado que eu crie ${quantidade} produto valido
+#QUANDO
+Quando que eu crio ${quantidade} produto valido
     ${quantidade}=    Convert To Integer    ${quantidade}
-    ${responses}=    Create List
-    ${bodies}=       Create List
+    ${responses}=     Create List
+    ${bodies}=        Create List
 
     FOR    ${index}    IN RANGE    ${quantidade}
         ${response}    ${body}=    Criar Produto Na API
@@ -22,11 +22,22 @@ Dado que eu crie ${quantidade} produto valido
     Set Suite Variable    ${responses}
     Set Suite Variable    ${bodies}
 
+Quando eu criar um produto com nome vazio
+    ${body}=    Gerar Produto Sem Nome
+
+    ${response}    ${body}=    Criar Produto Na API    ${body}
+
+    Set Suite Variable    ${response}
+    Set Suite Variable    ${body}
+
 #ENTAO
 Entao a API deve retornar status 201
     FOR     ${response}    IN    @{responses}
         Validar Status 201 Created    ${response}
     END
+
+Entao a API deve retornar status 400
+    Validar Status 400 Bad Request    ${response}
 
 E deve retornar os dados dos produtos criados
         ${total_responses}=    Get Length    ${responses}
@@ -47,3 +58,19 @@ E deve retornar os dados dos produtos criados
             Should Be Equal As Integers      ${json['estoque']}      ${body['estoque']}
             Should Be Equal As Strings       ${json['categoria']}    ${body['categoria']}
         END
+
+E deve retornar a mensagem "${mensagem}"
+    Validar Mensagem De Campo Obrigatorio
+    ...    ${response}
+    ...    nome
+    ...    ${mensagem}
+
+Gerar Produto Sem Nome
+    ${produto}=    Create Dictionary
+    ...    nome=
+    ...    descricao=MacBook M4, 16GB RAM, SSD 512GB
+    ...    preco=39499.99
+    ...    estoque=500000
+    ...    categoria=ELETRONICO
+
+    RETURN    ${produto}
