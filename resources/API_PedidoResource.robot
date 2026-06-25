@@ -7,21 +7,16 @@ Resource    ../resources/CommonsResources.robot
 
 *** Keywords ***
 #DADO
-Dado que eu esteja autenticado na api
-    ${response}     Autenticar Usuario Na API
-    Set Suite Variable    ${response}
+Dado que exista um produto cadastrado
+     ${response}     ${body}=    Criar Produto na API
+     Set Suite Variable    ${response}
+     Set Suite Variable    ${body}
 
 #QUANDO
 Quando eu criar um pedido valido
     ${response}     ${body}=    Criar Pedido na API
     Set Suite Variable    ${response}
     Set Suite Variable    ${body}
-#E
-E existe um produto cadastrado
-    ${response}     ${body}=    Criar Produto na API
-    Set Suite Variable    ${response}
-    Set Suite Variable    ${body}
-
 
 #ENTAO
 Entao a API deve retornar status 201
