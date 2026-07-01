@@ -7,7 +7,7 @@ Resource    ../resources/CommonsResources.robot
 *** Keywords ***
 
 #QUANDO
-Quando que eu crio ${quantidade} produto valido
+Quando que eu criar ${quantidade} produto valido
     ${quantidade}=    Convert To Integer    ${quantidade}
     ${responses}=     Create List
     ${bodies}=        Create List
@@ -23,7 +23,33 @@ Quando que eu crio ${quantidade} produto valido
     Set Suite Variable    ${bodies}
 
 Quando eu criar um produto com nome vazio
-    ${body}=    Gerar Produto Sem Nome
+    ${body}=    Gerar Produto invalido
+    ...   nome=
+    ${response}    ${body}=    Criar Produto Na API    ${body}
+
+    Set Suite Variable    ${response}
+    Set Suite Variable    ${body}
+
+Quando eu criar um produto com categoria inválida
+    ${body}=    Gerar Produto invalido
+    ...         categoria=TESTE
+    ${response}    ${body}=    Criar Produto Na API    ${body}
+
+    Set Suite Variable    ${response}
+    Set Suite Variable    ${body}
+
+Quando eu criar um produto com estoque -1
+    ${body}=    Gerar Produto invalido
+    ...   estoque=-1
+
+    ${response}    ${body}=    Criar Produto Na API    ${body}
+
+    Set Suite Variable    ${response}
+    Set Suite Variable    ${body}
+
+Quando eu criar um produto com valor -1
+    ${body}=    Gerar Produto invalido
+    ...   preco=-1
 
     ${response}    ${body}=    Criar Produto Na API    ${body}
 
@@ -59,18 +85,33 @@ E deve retornar os dados dos produtos criados
             Should Be Equal As Strings       ${json['categoria']}    ${body['categoria']}
         END
 
-E deve retornar a mensagem "${mensagem}"
+E deve retornar a mensagem "${mensagem}" para o campo "${campo}"
     Validar Mensagem De Campo Obrigatorio
     ...    ${response}
-    ...    nome
+    ...    ${campo}
     ...    ${mensagem}
 
-Gerar Produto Sem Nome
+E a mensagem deve conter "${texto}"
+    ${json}=    Set Variable    ${response.json()}
+    ${erro}=    Set Variable    ${json['mensagem'][0]}
+
+    Should Contain
+    ...    ${json['mensagem']}
+    ...    ${texto}
+
+Gerar Produto invalido
+    [Arguments]
+    ...    ${nome}=Notebook Gamer
+    ...    ${descricao}=RTX 4060
+    ...    ${preco}=3500
+    ...    ${estoque}=100
+    ...    ${categoria}=ELETRONICO
+
     ${produto}=    Create Dictionary
-    ...    nome=
-    ...    descricao=MacBook M4, 16GB RAM, SSD 512GB
-    ...    preco=39499.99
-    ...    estoque=500000
-    ...    categoria=ELETRONICO
+    ...    nome=${nome}
+    ...    descricao=${descricao}
+    ...    preco=${preco}
+    ...    estoque=${estoque}
+    ...    categoria=${categoria}
 
     RETURN    ${produto}

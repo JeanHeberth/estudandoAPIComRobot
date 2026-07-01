@@ -13,14 +13,47 @@ Dado que exista um produto cadastrado
      Set Suite Variable    ${body}
 
 #QUANDO
-Quando eu criar um pedido valido
-    ${response}     ${body}=    Criar Pedido na API
+Quando eu criar ${quantidade} pedido valido
+    ${quantidade}=    Convert To Integer    ${quantidade}
+    ${responses}=     Create List
+    ${bodies}=        Create List
+
+    FOR     ${index}    IN RANGE    ${quantidade}
+        ${response}    ${body}=    Criar Pedido Na API
+
+        Append To List    ${responses}    ${response}
+        Append To List    ${bodies}       ${body}
+    END
+
+    Set Suite Variable    ${responses}
+    Set Suite Variable    ${bodies}
+    Set Suite Variable    ${response}
+    Set Suite Variable    ${body}
+
+Quando eu criar um pedido com quantidade vazia
+    ${body}=    Gerar Pedido invalido
+    ...   quantidade=${NONE}
+
+    ${response}    ${body}=    Criar Pedido Na API    ${body}
+
+    Set Suite Variable    ${response}
+    Set Suite Variable    ${body}
+
+Quando eu criar um pedido com ID do produto vazio
+    ${body}=    Gerar Pedido invalido
+    ...   produto_id=${NONE}
+
+    ${response}    ${body}=    Criar Pedido Na API    ${body}
+
     Set Suite Variable    ${response}
     Set Suite Variable    ${body}
 
 #ENTAO
 Entao a API deve retornar status 201
     Validar Status 201 Created    ${response}
+
+Entao a API deve retornar status 400
+    Validar Status 400 Bad Request    ${response}
 
 #E
 E deve retornar os dados do pedido criado
@@ -40,26 +73,63 @@ E deve retornar os dados do pedido criado
     Dictionary Should Contain Key  ${item_response}    precoUnitario
     Dictionary Should Contain Key  ${item_response}    subtotal
 
+E deve retornar a mensagem "${mensagem}" para o campo "${campo}"
+    Validar Mensagem De Campo Obrigatorio
+    ...    ${response}
+    ...    ${campo}
+    ...    ${mensagem}
+
+
 
 #STEPS
-Criar Pedido na API
-   ${produto_id}=    Convert To Integer    1
-   ${quantidade}=    Convert To Integer    1
-   ${item}=     Create Dictionary
-   ...          produtoId=${produto_id}
-   ...          quantidade=${quantidade}
+Criar Pedido Na API
+    [Arguments]    ${body}=${None}
 
-   ${itens}=    Create List
-   ...          ${item}
+    IF    ${body} == ${None}
+        ${produto_id}=    Convert To Integer    1
+        ${quantidade}=    Convert To Integer    1
 
-   ${body}=     Create Dictionary
-   ...          itens=${itens}
+        ${item}=    Create Dictionary
+        ...    produtoId=${produto_id}
+        ...    quantidade=${quantidade}
 
-   ${response}=  POST On Session
-   ...           api
-   ...           ${ENDPOINT_PEDIDOS}
-   ...           headers=${HEADERS}
-   ...           json=${body}
-   ...           expected_status=any
+        ${itens}=    Create List
+        ...    ${item}
 
-   RETURN       ${response}    ${body}
+        ${body}=    Create Dictionary
+        ...    itens=${itens}
+    END
+
+    ${response}=    POST On Session
+    ...    api
+    ...    ${ENDPOINT_PEDIDOS}
+    ...    headers=${HEADERS}
+    ...    json=${body}
+    ...    expected_status=any
+
+    RETURN    ${response}    ${body}
+
+
+Gerar Pedido Invalido
+     [Arguments]
+     ...    ${produto_id}=${NONE}
+     ...    ${quantidade}=${NONE}
+
+     ${item}=    Create Dictionary
+
+     IF    $produto_id is not None
+         ${produto_id}=    Convert To Integer    ${produto_id}
+         Set To Dictionary    ${item}    produtoId=${produto_id}
+     END
+
+     IF    $quantidade is not None
+         ${quantidade}=    Convert To Integer    ${quantidade}
+         Set To Dictionary    ${item}    quantidade=${quantidade}
+     END
+
+     ${itens}=    Create List    ${item}
+
+     ${body}=    Create Dictionary
+     ...    itens=${itens}
+
+     RETURN    ${body}

@@ -10,7 +10,7 @@ Dado que eu tenha acesso a api
 
 #Quando
 Quando eu consultar o healhcheck
-    ${response}=    GET On Session    api    /health
+    ${response}=    GET On Session    api    /actuator/health
     Set Suite Variable    ${response}
 
 #Entao
