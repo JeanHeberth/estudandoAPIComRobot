@@ -33,12 +33,17 @@ Validar Credenciais De Login Configuradas
     ...    ${SENHA_LOGIN}
     ...    msg=API_SENHA não configurada.
 
-Autenticar Usuario Na API
-    Validar Credenciais De Login Configuradas
 
-    ${body}=    Create Dictionary
-    ...    email=${EMAIL_LOGIN}
-    ...    senha=${SENHA_LOGIN}
+Autenticar Usuario Na API
+    [Arguments]    ${body}=${None}
+
+    IF    $body is None
+        Validar Credenciais De Login Configuradas
+
+        ${body}=    Create Dictionary
+        ...    email=${EMAIL_LOGIN}
+        ...    senha=${SENHA_LOGIN}
+    END
 
     ${response}=    POST On Session
     ...    api
@@ -46,16 +51,16 @@ Autenticar Usuario Na API
     ...    json=${body}
     ...    expected_status=any
 
-    ${json}=    Set Variable    ${response.json()}
+    IF    ${response.status_code} == 200
+        ${json}=    Set Variable    ${response.json()}
 
-    ${headers}=    Create Dictionary
-    ...    Authorization=${json['tipo']} ${json['token']}
+        ${headers}=    Create Dictionary
+        ...    Authorization=${json['tipo']} ${json['token']}
 
-    Set Suite Variable    ${HEADERS}    ${headers}
+        Set Suite Variable    ${HEADERS}    ${headers}
+    END
 
     RETURN    ${response}
-
-
 #########################################
 ############### USUÁRIO #################
 #########################################
@@ -254,12 +259,16 @@ Validar Mensagem De Campo Obrigatorio
     ...    ${json['mensagem']}
     ...    Um ou mais campos estão inválidos
 
-    ${erro}=    Set Variable    ${json['campos'][0]}
+    ${campos}=    Set Variable    ${json['campos']}
 
-    Should Be Equal As Strings
-    ...    ${erro['campo']}
-    ...    ${campo}
+    ${mensagens}=    Create List
 
-    Should Be Equal As Strings
-    ...    ${erro['mensagem']}
+    FOR    ${erro}    IN    @{campos}
+        IF    '${erro['campo']}' == '${campo}'
+            Append To List    ${mensagens}    ${erro['mensagem']}
+        END
+    END
+
+    List Should Contain Value
+    ...    ${mensagens}
     ...    ${mensagem}
